@@ -15,8 +15,7 @@ public class fractalTexture2d_backup : MonoBehaviour
     [Range(1, 255)]
     int max_iteration = 255;
 
-    bool inside_image = false, reduce_size_selection = false;
-    float selection_area;
+    bool inside_image = false;
     Vector2 start_click, end_click, start_coord_for_calculus, end_coord_for_calculus;
 
     // Start is called before the first frame update
@@ -31,8 +30,6 @@ public class fractalTexture2d_backup : MonoBehaviour
 
         start_coord_for_calculus = new Vector2(0f, 0f);
         end_coord_for_calculus = new Vector2(0f, 0f);
-
-        selection_area = 0;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

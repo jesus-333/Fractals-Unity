@@ -13,10 +13,10 @@ public class fractalTexture2d : MonoBehaviour
     public float x_min = -1, x_max = 1, y_min = -1, y_max = 1;
 
     [Range(1, 255)]
-    int max_iteration = 255;
+    public int max_iteration = 255;
 
-    bool inside_image = false, reduce_size_selection = false;
-    float selection_area;
+    bool inside_image = false, color_inside = false;
+    float percentage_r, percentage_g, percentage_b;
     Vector2 start_click, end_click, start_coord_for_calculus, end_coord_for_calculus;
 
     // Start is called before the first frame update
@@ -32,7 +32,7 @@ public class fractalTexture2d : MonoBehaviour
         start_coord_for_calculus = new Vector2(0f, 0f);
         end_coord_for_calculus = new Vector2(0f, 0f);
 
-        selection_area = 0;
+        percentage_r = percentage_g = percentage_b = 1f;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -41,7 +41,7 @@ public class fractalTexture2d : MonoBehaviour
     void createFractal(){
         float[] x_points = linspace(x_min, x_max, width), y_points = linspace(y_min, y_max, height);
         Complex z, c;
-        float count =0;
+        float count =0, color_inside_value = 1f;
 
         for (int i = 0; i < width; i ++){
             for(int j = 0; j < height; j++){
@@ -66,6 +66,12 @@ public class fractalTexture2d : MonoBehaviour
 
                 fractal.SetPixel(i, j, new Color(count/255f * (float)Complex.Abs(z), count/255f * (float)Complex.Abs(z), count/255f * (float)Complex.Abs(z)));
                 // fractal.SetPixel(i, j, new Color(count/255f * (float)Complex.Abs(z), (float)Complex.Abs(z), (float)Complex.Abs(z)));
+
+                if(false){
+                    if(color_inside) color_inside_value = (float)Complex.Abs(z);
+                    else color_inside_value = 1f;
+                    fractal.SetPixel(i, j, new Color(count/255f * color_inside_value, count/255f * color_inside_value, count/255f * color_inside_value));
+                }
             }
         }
 
@@ -83,6 +89,25 @@ public class fractalTexture2d : MonoBehaviour
         }
 
         return return_vet;
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Color fractal functions
+
+    public void setcolorInside(bool tmp_value){
+        color_inside = tmp_value;
+    }
+
+    public void setPercentageRed(float tmp_percentage_r){
+        percentage_r = tmp_percentage_r;
+    }
+
+    public void setPercentageGreen(float tmp_percentage_g){
+        percentage_g = tmp_percentage_g;
+    }
+
+    public void setPercentageBlue(float tmp_percentage_b){
+        percentage_b = tmp_percentage_b;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,14 +181,6 @@ public class fractalTexture2d : MonoBehaviour
 
         start_coord_for_calculus.y = (int)(((float)tmp_min / (float)Screen.height) * (float)height);
         end_coord_for_calculus.y   = (int)(((float)tmp_max / (float)Screen.height) * (float)height);
-
-        // Evaluate the area of the selection
-        // float tmp_new_area = (end_coord_for_calculus.x - start_coord_for_calculus.x) * (end_coord_for_calculus.y - start_coord_for_calculus.y);
-        // if(tmp_new_area > selection_area) reduce_size_selection = false;
-        // else reduce_size_selection = true;
-        // // print("NEW AREA = " + tmp_new_area + "   OLD AREA = " + selection_area + "   change = " + reduce_size_selection);
-        // selection_area = tmp_new_area;
-
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
