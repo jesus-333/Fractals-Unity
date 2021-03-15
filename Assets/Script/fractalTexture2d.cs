@@ -15,30 +15,32 @@ public class fractalTexture2d : MonoBehaviour
     [Range(1, 255)]
     public int max_iteration = 255;
 
-    bool inside_image = false, color_inside = false;
-    float percentage_r, percentage_g, percentage_b;
+    bool inside_image = false, color_inside;
+    float percentage_r, percentage_g, percentage_b, escape_radius;
     Vector2 start_click, end_click, start_coord_for_calculus, end_coord_for_calculus;
 
     // Start is called before the first frame update
     void Start()
     {
-        fractal = new Texture2D(width, height);
-        fractal_copy = new Texture2D(width, height);
-        img.texture = fractal;
+        percentage_r = percentage_g = percentage_b = 1f;
+        color_inside = true;
+        escape_radius = 4;
 
-        createFractal();
+        fractal = createFractal();
+        fractal_copy = new Texture2D(width, height);
         Graphics.CopyTexture(fractal, fractal_copy);
+        setTexture(fractal);
 
         start_coord_for_calculus = new Vector2(0f, 0f);
         end_coord_for_calculus = new Vector2(0f, 0f);
-
-        percentage_r = percentage_g = percentage_b = 1f;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Create Fractal functions
 
-    void createFractal(){
+    Texture2D createFractal(){
+        Texture2D fractal = new Texture2D(width, height);
+
         float[] x_points = linspace(x_min, x_max, width), y_points = linspace(y_min, y_max, height);
         Complex z, c;
         float count =0, color_inside_value = 1f;
@@ -54,28 +56,23 @@ public class fractalTexture2d : MonoBehaviour
                 for(int k = 0; k < max_iteration; k++){
                     z = z * z + c;
 
-                    if(Complex.Abs(z) > 4) {
-                        //print(count);
-                        break;
-                    }
+                    if(Complex.Abs(z) > escape_radius) break;
 
                     count++;
                 }
-                //print(count);
+
                 // fractal.SetPixel(i, j, new Color(count/255f, 0f, 0f));
+                // fractal.SetPixel(i, j, new Color(count/255f * (float)Complex.Abs(z), count/255f * (float)Complex.Abs(z), count/255f * (float)Complex.Abs(z)));
 
-                fractal.SetPixel(i, j, new Color(count/255f * (float)Complex.Abs(z), count/255f * (float)Complex.Abs(z), count/255f * (float)Complex.Abs(z)));
-                // fractal.SetPixel(i, j, new Color(count/255f * (float)Complex.Abs(z), (float)Complex.Abs(z), (float)Complex.Abs(z)));
+                if(color_inside) color_inside_value = (float)Complex.Abs(z);
+                else color_inside_value = 1f;
 
-                if(false){
-                    if(color_inside) color_inside_value = (float)Complex.Abs(z);
-                    else color_inside_value = 1f;
-                    fractal.SetPixel(i, j, new Color(count/255f * color_inside_value, count/255f * color_inside_value, count/255f * color_inside_value));
-                }
+                fractal.SetPixel(i, j, new Color(count/255f * color_inside_value * percentage_r, count/255f * color_inside_value * percentage_g, count/255f * color_inside_value * percentage_b));
+
             }
         }
 
-        fractal.Apply();
+        return fractal;
     }
 
 
@@ -92,7 +89,7 @@ public class fractalTexture2d : MonoBehaviour
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Color fractal functions
+    // Color fractal related functions
 
     public void setcolorInside(bool tmp_value){
         color_inside = tmp_value;
@@ -108,6 +105,17 @@ public class fractalTexture2d : MonoBehaviour
 
     public void setPercentageBlue(float tmp_percentage_b){
         percentage_b = tmp_percentage_b;
+    }
+
+    public void setEscapeRadius(float tmp_escape_radius){
+        escape_radius = tmp_escape_radius;
+
+        GameObject.Find("Text Escape Radius").GetComponent<Text>().text = "" + ((int)tmp_escape_radius);
+    }
+
+    public void drawnFractalThroughButton(){
+        fractal = createFractal();
+        setTexture(fractal);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,13 +137,12 @@ public class fractalTexture2d : MonoBehaviour
         if(inside_image){
             Vector3 mousePos = Input.mousePosition;
             start_click = new Vector2(mousePos.x, mousePos.y);
-            // img.texture = fractal_copy;
 
             print("Point = " + start_click);
             Vector2 tmp_traslato = new Vector2(0,0);
             tmp_traslato.x = (int)(((float)start_click.x / (float)Screen.width) * (float)width);
             tmp_traslato.y = (int)(((float)start_click.y / (float)Screen.height) * (float)height);
-            print("Point = " + tmp_traslato);
+            // print("Point = " + tmp_traslato);
         }
     }
 
@@ -206,24 +213,9 @@ public class fractalTexture2d : MonoBehaviour
             // colors[i] = new Color(1f - colors[i].r, 1f, 1f - colors[i].b);
 
             colors[i].r = 1 - colors[i].r;
-            colors[i].g = 0f;
-            colors[i].b = 0f;
-            // colors[i].a = 0f;
-        }
-
-        return colors;
-    }
-
-    private Color[] changeColorsVector2(Color[] colors){
-        // Function to change the color of the pixels
-
-        for(int i = 0; i < colors.Length; i++){
-            // colors[i] = new Color(1f - colors[i].r, 1f, 1f - colors[i].b);
-
-            colors[i].r = 1 - colors[i].r;
-            colors[i].g = 0.5f;
-            colors[i].b = 0.5f;
-            // colors[i].a = 0f;
+            colors[i].g = 1 - colors[i].g;
+            colors[i].b = 1 - colors[i].b;
+            colors[i].a = 0.8f;
         }
 
         return colors;
