@@ -37,7 +37,7 @@ public class fractalTexture2d : MonoBehaviour
     }
 
     void Update(){
-        
+
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -127,6 +127,9 @@ public class fractalTexture2d : MonoBehaviour
     // Manage Click Functions
 
     public void OnDrag(){
+        // Function used during the drag of the mouse.
+        // Create a texture that overlap and show the selected area with inverted color
+
         if(inside_image){
             Vector3 mousePos = Input.mousePosition;
             end_click = new Vector2(mousePos.x, mousePos.y);
@@ -142,10 +145,6 @@ public class fractalTexture2d : MonoBehaviour
         if(inside_image){
             Vector3 mousePos = Input.mousePosition;
             start_click = new Vector2(mousePos.x, mousePos.y);
-
-            Vector2 tmp_traslato = new Vector2(0,0);
-            tmp_traslato.x = (int)(((float)start_click.x / (float)Screen.width) * (float)width);
-            tmp_traslato.y = (int)(((float)start_click.y / (float)Screen.height) * (float)height);
         }
     }
 
@@ -175,11 +174,6 @@ public class fractalTexture2d : MonoBehaviour
             x_max = tmp_x_max;
             y_min = tmp_y_min;
             y_max = tmp_y_max;
-
-            print("x_min = " + x_min + "\tx_max = " + x_max);
-            print("y_min = " + y_min + "\ty_max = " + y_max);
-            print("tmp_x_min = " + tmp_x_min + "\ttmp_x_max = " + tmp_x_max);
-            print("tmp_y_min = " + tmp_y_min + "\ttmp_y_max = " + tmp_y_max);
 
             // Redrawn fractal
             drawnFractalThroughFunction();
@@ -234,7 +228,7 @@ public class fractalTexture2d : MonoBehaviour
     }
 
     private Color[] changeColorsVector(Color[] colors){
-        // Function to change the color of the pixels
+        // Function to change the color of the pixels during the overlap
 
         for(int i = 0; i < colors.Length; i++){
             // colors[i] = new Color(1f - colors[i].r, 1f, 1f - colors[i].b);
@@ -274,6 +268,8 @@ public class fractalTexture2d : MonoBehaviour
     }
 
     private void setTexture(Texture2D tex){
+        // Function to set the texture of the image and show it.
+
         img.texture = tex;
         tex.Apply();
     }
