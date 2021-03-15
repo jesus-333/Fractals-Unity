@@ -19,7 +19,8 @@ public class fractalTexture2d : MonoBehaviour
     float percentage_r, percentage_g, percentage_b, escape_radius;
     Vector2 start_click, end_click, start_coord_for_calculus, end_coord_for_calculus;
 
-    // Start is called before the first frame update
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     void Start()
     {
         percentage_r = percentage_g = percentage_b = 1f;
@@ -33,6 +34,10 @@ public class fractalTexture2d : MonoBehaviour
 
         start_coord_for_calculus = new Vector2(0f, 0f);
         end_coord_for_calculus = new Vector2(0f, 0f);
+    }
+
+    void Update(){
+        
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -113,7 +118,7 @@ public class fractalTexture2d : MonoBehaviour
         GameObject.Find("Text Escape Radius").GetComponent<Text>().text = "" + ((int)tmp_escape_radius);
     }
 
-    public void drawnFractalThroughButton(){
+    public void drawnFractalThroughFunction(){
         fractal = createFractal();
         setTexture(fractal);
     }
@@ -138,11 +143,9 @@ public class fractalTexture2d : MonoBehaviour
             Vector3 mousePos = Input.mousePosition;
             start_click = new Vector2(mousePos.x, mousePos.y);
 
-            print("Point = " + start_click);
             Vector2 tmp_traslato = new Vector2(0,0);
             tmp_traslato.x = (int)(((float)start_click.x / (float)Screen.width) * (float)width);
             tmp_traslato.y = (int)(((float)start_click.y / (float)Screen.height) * (float)height);
-            // print("Point = " + tmp_traslato);
         }
     }
 
@@ -152,9 +155,34 @@ public class fractalTexture2d : MonoBehaviour
             end_click = new Vector2(mousePos.x, mousePos.y);
             correctCordinates(start_click, end_click);
 
-            // Clean the selection when I stop to click the mouse button
-            Graphics.CopyTexture(fractal, fractal_copy);
-            setTexture(fractal_copy);
+            // Clean the selection when I stop to click the mouse button (Used during debug)
+            // Graphics.CopyTexture(fractal, fractal_copy);
+            // setTexture(fractal_copy);
+
+            // Zoom in temporary variable
+            float tmp_x_min, tmp_x_max, tmp_y_min, tmp_y_max;
+
+            // Rescale x values
+            tmp_x_min = (start_coord_for_calculus.x / width) * (x_max - x_min) + x_min;
+            tmp_x_max = (end_coord_for_calculus.x / width) * (x_max - x_min) + x_min;
+
+            // Rescale y values
+            tmp_y_min = start_coord_for_calculus.y / (height) * (y_max - y_min) + y_min;
+            tmp_y_max = end_coord_for_calculus.y / (height) * (y_max - y_min) + y_min;
+
+            // Assign rescale values
+            x_min = tmp_x_min;
+            x_max = tmp_x_max;
+            y_min = tmp_y_min;
+            y_max = tmp_y_max;
+
+            print("x_min = " + x_min + "\tx_max = " + x_max);
+            print("y_min = " + y_min + "\ty_max = " + y_max);
+            print("tmp_x_min = " + tmp_x_min + "\ttmp_x_max = " + tmp_x_max);
+            print("tmp_y_min = " + tmp_y_min + "\ttmp_y_max = " + tmp_y_max);
+
+            // Redrawn fractal
+            drawnFractalThroughFunction();
         }
     }
 
@@ -180,7 +208,6 @@ public class fractalTexture2d : MonoBehaviour
 
         start_coord_for_calculus.x = (int)(((float)tmp_min / (float)Screen.width) * (float)width);
         end_coord_for_calculus.x   = (int)(((float)tmp_max / (float)Screen.width) * (float)width);
-        // print(Screen.width);
 
         // correct y values
         tmp_min = Mathf.Min(start_coord.y, end_coord.y);
