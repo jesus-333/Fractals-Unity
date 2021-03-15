@@ -10,14 +10,14 @@ public class fractalTexture2d : MonoBehaviour
     private Texture2D fractal, fractal_copy;
     public RawImage img;
     public int width = 800, height = 600;
-    public float x_min = -1, x_max = 1, y_min = -1, y_max = 1;
+    public double x_min = -1, x_max = 1, y_min = -1, y_max = 1;
     public GameObject Color_UI, Zoom_UI;
 
     [Range(1, 255)]
     public int max_iteration = 255;
 
     bool inside_image = false, color_inside, keep_aspect_ratio, zoom_click;
-    float percentage_r, percentage_g, percentage_b, escape_radius;
+    double percentage_r, percentage_g, percentage_b, escape_radius;
     Vector2 start_click, end_click, start_coord_for_calculus, end_coord_for_calculus;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,6 +49,14 @@ public class fractalTexture2d : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Z)){
             Zoom_UI.SetActive(!Zoom_UI.activeSelf);
         }
+
+        // Reset to normal scale if press R
+        if(Input.GetKeyDown(KeyCode.R)){
+            x_min = y_min = -1;
+            x_max = y_max = 1;
+
+            drawnFractalThroughFunction();
+        }
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,9 +65,9 @@ public class fractalTexture2d : MonoBehaviour
     Texture2D createFractal(){
         Texture2D fractal = new Texture2D(width, height);
 
-        float[] x_points = linspace(x_min, x_max, width), y_points = linspace(y_min, y_max, height);
+        double[] x_points = linspace(x_min, x_max, width), y_points = linspace(y_min, y_max, height);
         Complex z, c;
-        float count =0, color_inside_value = 1f, r, g ,b;
+        double count =0, color_inside_value = 1f, r, g ,b;
 
         for (int i = 0; i < width; i ++){
             for(int j = 0; j < height; j++){
@@ -67,23 +75,22 @@ public class fractalTexture2d : MonoBehaviour
                 c = new Complex(x_points[i], y_points[j]);
                 count = 0;
 
-                // if(i < 10 && j < 10) print(c);
-
                 for(int k = 0; k < max_iteration; k++){
-                    z = z * z + c;
+                    z =  z * z + c;
+                    // z =  (z + c) * Complex.Tan(z + c) * Complex.Sin(z + c);
 
                     if(Complex.Abs(z) > escape_radius) break;
 
                     count++;
                 }
 
-                if(color_inside) color_inside_value = (float)Complex.Abs(z);
+                if(color_inside) color_inside_value = (double)Complex.Abs(z);
                 else color_inside_value = 1f;
 
-                r = count/(float)max_iteration * color_inside_value * percentage_r;
-                g = count/(float)max_iteration * color_inside_value * percentage_g;
-                b = count/(float)max_iteration * color_inside_value * percentage_b;
-                fractal.SetPixel(i, j, new Color(r, g, b));
+                r = count/(double)max_iteration * color_inside_value * percentage_r;
+                g = count/(double)max_iteration * color_inside_value * percentage_g;
+                b = count/(double)max_iteration * color_inside_value * percentage_b;
+                fractal.SetPixel(i, j, new Color((float)r, (float)g, (float)b));
 
             }
         }
@@ -92,9 +99,9 @@ public class fractalTexture2d : MonoBehaviour
     }
 
 
-    private float[] linspace(float start, float end, int n){
-        float[] return_vet = new float[n];
-        float step = (end - start) / (float) n, tmp_val = start;
+    private double[] linspace(double start, double end, int n){
+        double[] return_vet = new double[n];
+        double step = (end - start) / (double) n, tmp_val = start;
 
         for(int i = 0; i < n; i++){
             return_vet[i] = tmp_val;
@@ -112,19 +119,19 @@ public class fractalTexture2d : MonoBehaviour
     }
 
     public void setPercentageRed(float tmp_percentage_r){
-        percentage_r = tmp_percentage_r;
+        percentage_r = (double)tmp_percentage_r;
     }
 
     public void setPercentageGreen(float tmp_percentage_g){
-        percentage_g = tmp_percentage_g;
+        percentage_g = (double)tmp_percentage_g;
     }
 
     public void setPercentageBlue(float tmp_percentage_b){
-        percentage_b = tmp_percentage_b;
+        percentage_b = (double)tmp_percentage_b;
     }
 
     public void setEscapeRadius(float tmp_escape_radius){
-        escape_radius = tmp_escape_radius;
+        escape_radius = (double)tmp_escape_radius;
 
         GameObject.Find("Text Escape Radius").GetComponent<Text>().text = "" + ((int)tmp_escape_radius);
     }
@@ -170,7 +177,7 @@ public class fractalTexture2d : MonoBehaviour
             // setTexture(fractal_copy);
 
             // Zoom in temporary variable
-            float tmp_x_min, tmp_x_max, tmp_y_min, tmp_y_max;
+            double tmp_x_min, tmp_x_max, tmp_y_min, tmp_y_max;
 
             // Rescale x values
             tmp_x_min = (start_coord_for_calculus.x / width) * (x_max - x_min) + x_min;
@@ -181,9 +188,10 @@ public class fractalTexture2d : MonoBehaviour
             tmp_y_max = end_coord_for_calculus.y / (height) * (y_max - y_min) + y_min;
 
             // Modify the lower y to mantain the aspect ratio of the zoomed image
+            double tmp_aspect_ratio = (double)(x_max - x_min) / (double)(y_max - y_min);
             if(keep_aspect_ratio){
-                float tmp_aspect_ratio = (float)(x_max - x_min) / (float)(y_max - y_min);
-                tmp_y_min = tmp_y_max - (float)(tmp_x_max - tmp_x_min)/(float)(tmp_aspect_ratio);
+
+                tmp_y_min = tmp_y_max - (double)(tmp_x_max - tmp_x_min)/(double)(tmp_aspect_ratio);
             }
 
             // Assign rescale values
@@ -191,6 +199,11 @@ public class fractalTexture2d : MonoBehaviour
             x_max = tmp_x_max;
             y_min = tmp_y_min;
             y_max = tmp_y_max;
+
+            print("x_min = " + x_min + "\t x_max = " + x_max);
+            print("y_min = " + y_min + "\t y_max = " + y_max);
+            // print("aspect ration = " + ((double)(x_max - x_min) / (double)(y_max - y_min)) + "\t OLD aspect_ratio = " + tmp_aspect_ratio);
+            print("delta x = " + (x_max - x_min) + "\t delta y = " + (y_max - y_min));
 
             // Redrawn fractal
             drawnFractalThroughFunction();
@@ -211,21 +224,21 @@ public class fractalTexture2d : MonoBehaviour
         // Functions used to correct the cordinates according to Unity System where the origin is the bottom left corner.
         // The correction also consider the fact that the resolution of the texture can be different from the resolution of the screen
 
-        float tmp_min, tmp_max;
+        double tmp_min, tmp_max;
 
         // correct x values
         tmp_min = Mathf.Min(start_coord.x, end_coord.x);
         tmp_max = Mathf.Max(start_coord.x, end_coord.x);
 
-        start_coord_for_calculus.x = (int)(((float)tmp_min / (float)Screen.width) * (float)width);
-        end_coord_for_calculus.x   = (int)(((float)tmp_max / (float)Screen.width) * (float)width);
+        start_coord_for_calculus.x = (int)(((double)tmp_min / (double)Screen.width) * (double)width);
+        end_coord_for_calculus.x   = (int)(((double)tmp_max / (double)Screen.width) * (double)width);
 
         // correct y values
         tmp_min = Mathf.Min(start_coord.y, end_coord.y);
         tmp_max = Mathf.Max(start_coord.y, end_coord.y);
 
-        start_coord_for_calculus.y = (int)(((float)tmp_min / (float)Screen.height) * (float)height);
-        end_coord_for_calculus.y   = (int)(((float)tmp_max / (float)Screen.height) * (float)height);
+        start_coord_for_calculus.y = (int)(((double)tmp_min / (double)Screen.height) * (double)height);
+        end_coord_for_calculus.y   = (int)(((double)tmp_max / (double)Screen.height) * (double)height);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
