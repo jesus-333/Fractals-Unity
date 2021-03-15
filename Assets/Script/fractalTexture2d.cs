@@ -180,11 +180,6 @@ public class fractalTexture2d : MonoBehaviour
 
         // Set the selected pixels to the new color
         setPixelsHandmade(fractal_copy, (int)start_coord_for_calculus.x, (int)start_coord_for_calculus.y, tmp_width, tmp_height, pixels);
-
-        // print("Start click = " + start_click + "\t End click = " + end_click);
-        // print("Start corre = " + start_coord_for_calculus + "\t End corre = " + end_coord_for_calculus);
-        // print("tmp_width = " + tmp_width + "\t tmp_height = " + tmp_height);
-        // print("- - - - - - - - - -");
     }
 
     private Color[] changeColorsVector(Color[] colors){
@@ -228,13 +223,6 @@ public class fractalTexture2d : MonoBehaviour
             }
         }
 
-        // print("GET");
-        // print("k get = " + k);
-        // print("x_start = " + x + "\ty_start = " + y);
-        // print("x_end  = " + (x + width) + "\ty_end  = " + (y + height));
-        // print("width = " + width + "   height = " + height);
-        // print("# # # # # # # # # # # # # # # # # #");
-
         return tmp_colors;
     }
 
@@ -247,13 +235,6 @@ public class fractalTexture2d : MonoBehaviour
                 k++;
             }
         }
-
-        // print("SET");
-        // print("k = " + k);
-        // print("x_start = " + x + "\ty_start = " + y);
-        // print("x_end  = " + (x + width) + "\ty_end  = " + (y + height));
-        // print("width = " + width + "   height = " + height);
-        // print("- - - - - - - - - - - - - - - - - - - - - - - -");
     }
 
     private void setTexture(Texture2D tex){
